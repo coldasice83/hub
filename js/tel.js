@@ -9,11 +9,13 @@ function tel(id) {
 }
 
 function Tel(id) {
+    this.state = 'none';
     this.phone = document.getElementById(id);
+    this.addNumber = this.phone.querySelectorAll('.addedNumber')[0];
     this.input = null;
     this.list = {send:null, receive: null};
     this.make();
-    this.set();
+    this.setEvent();
 }
 
 
@@ -28,17 +30,28 @@ function NumberManager() {
         numberStr += '<div class="num asterisk">\*</div>';
         numberCap.innerHTML = numberStr;
     }
-    function setNumber() {
+    function setEvent() {
         var self = this;
         this.phone.addEventListener('click', function(e) {
             if(e.target.className.indexOf('num ') != -1) {
                 self.add(e.target.innerText);
+                var text = self.get();
+                if(sendManager.checkNumber(text) && self.state != 'call') {
+                    self.state = 'call';
+                    setTimeout(function() {
+                        console.log('Calling start number ', text);
+                    }, 1000);
+                }
             }
         });
+    }
+    function getNumber() {
+        return this.input;
     }
     function inputNumber(number) {
         this.input = this.input || '';
         this.input += number;
+        this.addNumber.innerHTML = this.input;
     }
     function resetNumber() {
         this.input = null;
@@ -51,21 +64,22 @@ function NumberManager() {
         add: inputNumber,
         reset: resetNumber,
         clear: clearOneNumber,
-        set: setNumber
+        setEvent: setEvent,
+        get: getNumber
     }
 }
 
-function SendManager() {
-    var effectiveExp = /^(01[016789]{1}|02|0[3-6]{1}[1-5]{1})-?[0-9]{3,4}-?[0-9]{4}$/;
-    var celNumExp = /^01[016789]{1}[0-9]{7,8}$/;
-    var telNumExp = /^(02|0[3-6]{1}[1-5]{1})[0-9]{7,8}$/;
-    function checkNumber(number) {
-        return effectiveExp.test(number);
-    }
-    function isCellNumber(number) {
-        return celNumExp.test(number);
-    }
-    function isTelNumber(number) {
-        return telNumExp.test(number);
+var sendManager = {
+    effectiveExp : /^(01[016789]{1}|02|0[3-6]{1}[1-5]{1})-?[0-9]{3,4}-?[0-9]{4}$/,
+    celNumExp : /^01[016789]{1}[0-9]{7,8}$/,
+    telNumExp : /^(02|0[3-6]{1}[1-5]{1})[0-9]{7,8}$/,
+    checkNumber : function(number) {
+        return this.effectiveExp.test(number);
+    },
+    isCellNumber : function(number) {
+        return this.celNumExp.test(number);
+    },
+    isTelNumber : function(number) {
+        return this.telNumExp.test(number);
     }
 }
