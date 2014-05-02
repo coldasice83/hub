@@ -13,6 +13,7 @@ function Tel(id) {
     this.input = null;
     this.list = {send:null, receive: null};
     this.make();
+    this.set();
 }
 
 
@@ -27,7 +28,16 @@ function NumberManager() {
         numberStr += '<div class="num asterisk">\*</div>';
         numberCap.innerHTML = numberStr;
     }
+    function setNumber() {
+        var self = this;
+        this.phone.addEventListener('click', function(e) {
+            if(e.target.className.indexOf('num ') != -1) {
+                self.add(e.target.innerText);
+            }
+        });
+    }
     function inputNumber(number) {
+        this.input = this.input || '';
         this.input += number;
     }
     function resetNumber() {
@@ -38,9 +48,10 @@ function NumberManager() {
     }
     return {
         make: makeNumber,
-        input: inputNumber,
+        add: inputNumber,
         reset: resetNumber,
-        clear: clearOneNumber
+        clear: clearOneNumber,
+        set: setNumber
     }
 }
 
