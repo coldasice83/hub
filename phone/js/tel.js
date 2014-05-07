@@ -32,15 +32,19 @@ function NumberManager() {
     }
     function setEvent() {
         var self = this;
+        var timer = null;
         this.phone.addEventListener('click', function(e) {
             if(e.target.className.indexOf('num ') != -1) {
                 self.add(e.target.innerText);
                 var text = self.get();
                 if(sendManager.checkNumber(text) && self.state != 'call') {
                     self.state = 'call';
-                    setTimeout(function() {
+                    timer = setTimeout(function() {
                         console.log('Calling start number ', text);
-                    }, 1000);
+                    }, 2000);
+                } else {
+                    clearTimeout(timer);
+                    // recursion
                 }
             }
         });
