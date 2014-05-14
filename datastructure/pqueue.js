@@ -20,20 +20,18 @@
  * 힙은 배열기반으로 구현됨 -> 연결 리스트를 기반으로 구현하면 새로운 노드를 힙의 마지막 위치에 추가하는 것이 쉽지 않다.
  **/
 
-function SimpleHeap() {
-    function HeapElement() {
-        this.pr; // priority int
-        this.data;
-    }
+function UsefulHeap() {
 
     function Heap() {
+        this.comp = null; // 우선순위를 판단하는 함수
         this.numOfData;
         this.heapArr = [];
     }
 
     /* ADT */
-    function heapInit(ph) {
+    function heapInit(ph, pc) {
         ph.numOfData = 0;
+        ph.comp = pc;
     }
     function hIsEmpty(ph){
         if(ph.numOfData == 0)
@@ -57,26 +55,29 @@ function SimpleHeap() {
     function getHiPriChildIDX(ph, idx) {
 
         if(getLChildIDX(idx) > ph.numOfData) // 자식이 없는경우
-          return 0;
+            return 0;
         else if(getLChildIDX(idx) == ph.numOfData) // 자식이 데이터 길이와 일치 -> 자식이 하나 뿐이다.
-          return getLChildIDX(idx);
+            return getLChildIDX(idx);
         else {
-            if(ph.heapArr[getLChildIDX(idx)].pr > ph.heapArr[getRChildIDX(idx)].pr)
+//            if(ph.heapArr[getLChildIDX(idx)].pr > ph.heapArr[getRChildIDX(idx)].pr)
+//                return getRChildIDX(idx);
+            if(ph.comp(ph.heapArr[getLChildIDX(idx)], ph.heapArr[getRChildIDX(idx)]) < 0)
                 return getRChildIDX(idx);
             else
-              return getLChildIDX(idx);
+                return getLChildIDX(idx);
         }
     }
 
-    function hInsert(ph, data, pr) { // 우선순위를 직접 전달하는 방식은 불편
+    function hInsert(ph, data) { // 우선순위를 직접 전달하는 방식은 불편
         var idx  = ph.numOfData + 1;
-        var heapEl = new HeapElement();
-        //console.log(idx, heapEl)
-        heapEl.pr = pr;
-        heapEl.data = data;
+//        var heapEl = new HeapElement();
+//        //console.log(idx, heapEl)
+//        heapEl.pr = pr;
+//        heapEl.data = data;
 
         while(idx != 1) {
-            if(pr < ph.heapArr[getParantIDX(idx)].pr){
+//            if(pr < ph.heapArr[getParantIDX(idx)].pr){
+            if(ph.comp(data, ph.heapArr[getParantIDX(idx)]) > 0) {
                 ph.heapArr[idx] = ph.heapArr[getParantIDX(idx)];
                 idx = getParantIDX(idx);
 //                console.log(pr, idx, data);
@@ -85,19 +86,21 @@ function SimpleHeap() {
             }
         }
 
-        ph.heapArr[idx] = heapEl;
+        ph.heapArr[idx] = data;
         ph.numOfData += 1;
     }
 
     function hDelete(ph) {
-        var retData = ph.heapArr[1].data;
+
+        var retData = ph.heapArr[1];
         var lastElem = ph.heapArr[ph.numOfData];
         var parentIdx = 1;
         var childIdx;
         // 마지막 요소를 위로 올렸다고 가정, 루트노드의 인덱스인 parentIdx를 사용하여 ph의 값들을 비교하여 최종목적지 확인 및 이동
         while(childIdx = getHiPriChildIDX(ph, parentIdx)) {
             //console.dir(lastElem.pr);
-            if(lastElem.pr <= ph.heapArr[childIdx])
+//            if(lastElem.pr <= ph.heapArr[childIdx])
+            if(ph.comp(lastElem, ph.heapArr[childIdx]) >= 0)
                 break;
             ph.heapArr[parentIdx] = ph.heapArr[childIdx];
             parentIdx = childIdx;
@@ -105,30 +108,91 @@ function SimpleHeap() {
 
         ph.heapArr[parentIdx] = lastElem;
         ph.numOfData -= 1;
+        console.log(ph.heapArr);
         return retData;
     }
 
 
-    function main_359p() {
-        var heap = new Heap();
-        heapInit(heap);
 
-        hInsert(heap, 'A', 1);
-        hInsert(heap, 'B', 2);
-        hInsert(heap, 'C', 3);
+    function pQueueInit(pq, pc) {
+        heapInit(pq, pc);
+    }
+
+    function pQIsEmpty(pq) {
+        return hIsEmpty(pq);
+    }
+
+    function pEnqueue(pq, data) {
+        hInsert(pq, data);
+    }
+
+    function pDequeue(pq) {
+        return hDelete(pq);
+    }
+
+
+
+    // 프로그래머가 우선순위의 판단 기준을 힙에 설정할수 있어야 한다.(우선순위 직접 입력은 좋지 않다)
+    console.log('######## Main 365 start=================');
+
+    function main_365p() {
+        var heap = new Heap();
+
+        function dataPriorityComp(ch1, ch2) {
+            return ch2.charCodeAt(0)-ch1.charCodeAt(0);
+        }
+        heapInit(heap, dataPriorityComp);
+
+        hInsert(heap, 'A');
+        hInsert(heap, 'B');
+        hInsert(heap, 'C');
 
         console.log('Delete... ', hDelete(heap));
 
-        hInsert(heap, 'A', 1);
-        hInsert(heap, 'B', 2);
-        hInsert(heap, 'C', 3);
+        hInsert(heap, 'A');
+        hInsert(heap, 'B');
+        hInsert(heap, 'C');
 
         console.log('Delete...', hDelete(heap));
 
         while(!hIsEmpty(heap)) {
             console.log('While Delete... ', hDelete(heap));
         }
+
     }
-    main_359p();
+    main_365p();
+
+    console.log('######## Main 365 end=================');
+    console.log('######## Main 369 start=================');
+
+    function main_369() {
+        function dataPriorityComp(ch1, ch2) {
+            return ch2.charCodeAt(0)-ch1.charCodeAt(0);
+        }
+
+        var pq = new Heap();
+        pQueueInit(pq, dataPriorityComp);
+
+        pEnqueue(pq, 'A');
+        pEnqueue(pq, 'B');
+        pEnqueue(pq, 'C');
+
+        console.log('Dequeue', pDequeue(pq));
+
+        pEnqueue(pq, 'A');
+        pEnqueue(pq, 'B');
+        pEnqueue(pq, 'C');
+
+        console.log('Dequeue', pDequeue(pq));
+
+        while(!pQIsEmpty(pq)) {
+            console.log('While Delete', pDequeue(pq));
+        }
+
+    }
+    main_369();
+
+
+    console.log('######## Main 369 end=================');
 
 }
